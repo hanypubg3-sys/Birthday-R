@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Beautiful Memories</title>
+  <style>
+    *{box-sizing:border-box;font-family:'Cairo',sans-serif}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:linear-gradient(180deg,#8b0000,#b11226);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#8b0000;
+    }
+    .card{
+      width:90%;max-width:420px;
+      background:#fff;
+      border-radius:30px;
+      padding:25px;
+      text-align:center;
+      box-shadow:0 10px 30px rgba(0,0,0,.3);
+      animation:fade .8s ease;
+      margin-bottom:20px;
+    }
+    @keyframes fade{from{opacity:0;transform:translateY(20px)}to{opacity:1}}
+    h1{margin:10px 0;font-size:28px}
+    p{line-height:1.9;font-size:15px}
+    input{
+      width:100%;padding:14px;
+      border-radius:25px;border:1px solid #ddd;
+      text-align:center;font-size:16px;
+      margin:15px 0;
+    }
+    button{
+      width:100%;padding:14px;
+      border:none;border-radius:25px;
+      background:#b11226;color:#fff;
+      font-size:16px;cursor:pointer;
+      margin-top:10px;
+    }
+    button:hover{opacity:.9}
+    .hidden{display:none}
+    img{
+      width:100%;border-radius:20px;
+      margin:10px 0;
+    }
+    .snow{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none}
+    #showGift{background:#ff4d4d;}
+    #showGift:hover{background:#ff1a1a;}
+    #lastContainer{
+      position:relative;
+      margin-top:20px;
+    }
+    #countdown{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      font-size:120px;
+      color:white;
+      background:rgba(0,0,0,0.5);
+      padding:20px 40px;
+      border-radius:20px;
+      display:none;
+    }
+    #giftEmoji{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      display:none;
+      text-align:center;
+      font-size:22px;
+      color:#fff;
+      background:rgba(177,18,38,0.9);
+      padding:20px;
+      border-radius:20px;
+      line-height:1.8;
+    }
+  </style>
+</head>
+<body>
+  <!-- Audio -->
+  <audio id="song" autoplay loop>
+    <source src="song.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Snow Canvas -->
+  <canvas class="snow"></canvas>
+
+  <!-- PAGE 1: PASSWORD -->
+  <div class="card" id="page1">
+    <h1>2026 🎄</h1>
+    <p>الباسورد؟</p>
+    <input type="password" id="pass" placeholder="Password" />
+    <button onclick="checkPass()">🔒 Unlock</button>
+    <p id="error" style="color:red"></p>
+  </div>
+
+  <!-- PAGE 2: MESSAGE -->
+  <div class="card hidden" id="page2">
+    <h1>💌 رحمة</h1>
+    <p>
+      عيد ميلادك مش يوم عادي بالنسبة لي،<br>
+      ده اليوم اللي الدنيا قررت تديني فيه أغلى حد في حياتي.<br><br>
+      عارف إن بينا مشاكل، ويمكن تعبنا بعض، ويمكن الدنيا مش دايمًا سهلة علينا…<br>
+      بس وسط كل ده، في حاجة واحدة عمرها ما اتغيرت:<br>
+      إني بحبك اوي يا رحمه وبخاف عليكي بجد.<br><br>
+      بخاف عليكي من الزعل، من الوجع، من أي حاجة ممكن تكسر قلبك حتى لو من غير قصد مني.<br>
+      يمكن معرفش دايمًا أعبّر صح، أو أتصرف صح،<br>
+      بس قلبي دايمًا في صفك، ودايمًا عايزك بخير وفرحانه.<br><br>
+      في عيد ميلادك، متمني السنة الجديدة تبقى أحن عليك،<br>
+      وأكون أنا فيها أهدى، أحن، وأقرب لقلبك.<br><br>
+      كل سنة وإنتي الحب اللي لسه متمسك بيه رغم أي حاجة ❤️
+    </p>
+    <button onclick="goMemories()">✨ Start Journey</button>
+  </div>
+
+  <!-- PAGE 3: MEMORIES -->
+  <div class="card hidden" id="page3">
+    <h1>Our Beautiful Memories</h1>
+    <img src="photo1.jpg" alt="memory">
+    <img src="photo2.jpg" alt="memory">
+    <p>ذكرياتنا الحلوة هتفضل دايمًا في قلبي ❤️</p>
+    
+    <!-- زرار الهديه -->
+    <button id="showGift">اضغط لعرض الهديه</button>
+
+    <!-- الصورة الطويلة مع العد التنازلي والجملة -->
+    <div id="lastContainer" class="hidden">
+      <img src="longphoto.jpg" alt="last memory" style="width:100%; border-radius:20px;">
+      <div id="countdown">3</div>
+      <div id="giftEmoji">طبعاً انا هديتك انتي مستنيه ايه 🤨</div>
+    </div>
+  </div>
+
+  <script>
+    // تعريف المتغيرات
+    const page1 = document.getElementById('page1');
+    const page2 = document.getElementById('page2');
+    const page3 = document.getElementById('page3');
+
+    const showGift = document.getElementById('showGift');
+    const lastContainer = document.getElementById('lastContainer');
+    const countdown = document.getElementById('countdown');
+    const giftEmoji = document.getElementById('giftEmoji');
+
+    // تحقق من الباسورد
+    function checkPass(){
+      const p = document.getElementById('pass').value;
+      if(p === '112005'){
+        page1.classList.add('hidden');
+        page2.classList.remove('hidden');
+      } else {
+        document.getElementById('error').innerText = 'الباسورد غلط';
+      }
+    }
+
+    // الانتقال للذكريات
+    function goMemories(){
+      page2.classList.add('hidden');
+      page3.classList.remove('hidden');
+    }
+
+    // زرار عرض الهديه مع العد التنازلي
+    showGift.addEventListener('click', ()=>{
+      lastContainer.classList.remove('hidden');
+      countdown.style.display = 'block';
+      giftEmoji.style.display = 'none';
+
+      let count = 3;
+      countdown.innerText = count;
+
+      const interval = setInterval(()=>{
+        count--;
+        if(count >= 0){
+          countdown.innerText = count;
+        }
+        if(count < 0){
+          clearInterval(interval);
+          countdown.style.display = 'none';
+          giftEmoji.style.display = 'block';
+          giftEmoji.scrollIntoView({behavior:"smooth"});
+        }
+      },1000);
+      lastContainer.scrollIntoView({behavior:"smooth"});
+    });
+
+    // ثلوج بسيطة
+    const canvas = document.querySelector('.snow');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let flakes = Array.from({length:50}, ()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*3+1}));
+
+    function snow(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = 'rgba(255,255,255,.8)';
+      flakes.forEach(f=>{
+        ctx.beginPath();
+        ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+        ctx.fill();
+        f.y += 1;
+        if(f.y > canvas.height) f.y = 0;
+      });
+      requestAnimationFrame(snow);
+    }
+    snow();
+
+    // إعادة تحجيم الكانفس عند تغيير حجم الشاشة
+    window.addEventListener('resize', ()=>{
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
